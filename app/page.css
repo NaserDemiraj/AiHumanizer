@@ -1,0 +1,5 @@
+.hf-page {
+  overflow-x: clip;
+  background: radial-gradient(1200px 620px at 78% -8%, color-mix(in srgb, var(--accent) 14%, #fff), transparent 60%),
+    radial-gradient(1000px 560px at 8% 4%, color-mix(in srgb, var(--accent) 8%, #fff), transparent 55%), #f6f8fc;
+}

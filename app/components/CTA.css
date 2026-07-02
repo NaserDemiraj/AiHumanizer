@@ -1,0 +1,85 @@
+.hf-cta-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 40px) clamp(18px, 4vw, 40px) clamp(56px, 7vw, 88px);
+}
+
+.hf-cta-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: clamp(44px, 6vw, 84px) clamp(24px, 4vw, 40px);
+  text-align: center;
+  background: linear-gradient(150deg, #0b1220, #16203a);
+}
+
+.hf-cta-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px 300px at 50% 0%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 65%);
+  pointer-events: none;
+}
+
+.hf-cta-content {
+  position: relative;
+}
+
+.hf-cta-title {
+  margin: 0 auto;
+  max-width: 640px;
+  font-size: clamp(30px, 4.4vw, 52px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  color: #fff;
+}
+
+.hf-cta-sub {
+  margin: 18px auto 0;
+  max-width: 520px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #a9b4cc;
+}
+
+.hf-cta-actions {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.hf-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 15px 30px;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #0a1120;
+  background: #fff;
+  border-radius: 13px;
+  transition: transform 0.2s ease;
+}
+
+.hf-cta-primary:hover {
+  transform: translateY(-2px);
+}
+
+.hf-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 28px;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 13px;
+  transition: background 0.2s ease;
+}
+
+.hf-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.16);
+}

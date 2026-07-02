@@ -1,0 +1,230 @@
+.hf-doc-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 48px) clamp(18px, 4vw, 40px) 80px;
+}
+
+.hf-doc-back {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #59647a;
+}
+
+.hf-doc-back:hover {
+  color: var(--accent);
+}
+
+.hf-doc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 18px 0 20px;
+}
+
+.hf-doc-title {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0a1120;
+}
+
+.hf-doc-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #8a94a6;
+}
+
+.hf-doc-kind {
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 11%, #fff);
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.hf-doc-project {
+  font-weight: 600;
+  color: #37435a;
+}
+
+.hf-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hf-doc-fav {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #4a566b;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.1);
+  border-radius: 10px;
+}
+
+.hf-doc-fav-on {
+  color: #b47c0a;
+  border-color: #ffe0a3;
+  background: #fff9ec;
+}
+
+.hf-doc-delete-btn {
+  cursor: pointer;
+  padding: 9px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #e5484d;
+  background: #fff;
+  border: 1px solid #f7d9da;
+  border-radius: 10px;
+}
+
+.hf-doc-delete-btn:hover {
+  background: #fdf2f2;
+}
+
+.hf-doc-export-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.hf-doc-export-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.hf-doc-export-btn {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #37435a;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.09);
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+
+.hf-doc-export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hf-doc-panes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.hf-doc-pane {
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.hf-doc-pane-improved {
+  background: #f0fbf4;
+  border-color: #cdeed9;
+}
+
+.hf-doc-pane-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a94a6;
+  margin-bottom: 12px;
+}
+
+.hf-doc-pane-text {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #2c3547;
+  white-space: pre-wrap;
+}
+
+.hf-doc-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.hf-doc-metric {
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.07);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 3px;
+}
+
+.hf-doc-metric span {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.hf-doc-metric strong {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0a1120;
+}
+
+.hf-doc-matches {
+  margin-top: 20px;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.hf-doc-match-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(12, 20, 37, 0.06);
+  border-radius: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.hf-doc-match-row:hover {
+  border-color: var(--accent);
+}
+
+.hf-doc-match-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hf-doc-match-words {
+  font-size: 12px;
+  color: #8a94a6;
+  white-space: nowrap;
+}

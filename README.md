@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HumanFlow — AI Writing Platform
 
-## Getting Started
+Full-stack AI writing platform: humanize AI-generated text, detect AI writing, check grammar, paraphrase, summarize, translate, generate citations, estimate plagiarism, and analyze readability/SEO — with accounts, word quotas, document history, projects, exports, and a public developer API.
 
-First, run the development server:
+Built with **Next.js 16 (App Router) + TypeScript**, **Prisma 7 + Neon Postgres**, and **Groq** for LLM inference.
+
+## Features
+
+- **Marketing site** — hero, features, interactive rewrite-mode picker, live editor demo, dashboard preview, pricing with comparison table, testimonials, FAQ, mobile menu
+- **Auth** — email/password signup & login, bcrypt hashing, DB-backed 30-day sessions (httpOnly cookies)
+- **AI Humanizer** — 14 rewrite modes (Humanize, Academic, SEO, Friendly, …) via Groq
+- **Writing tools** (`/tools`) — AI Detector, Grammar Checker, Paraphraser, Summarizer, Translator (33 languages), Tone Changer, Citation Generator (APA/MLA/Chicago/Harvard), Plagiarism Checker, free Text Analyzer
+- **Real computed metrics** — Flesch-Kincaid readability, keyword density, SEO score, word/char/sentence counts
+- **Workspace** — dashboard with usage meter, document history with per-document pages, favorites, projects, activity feed
+- **Exports** — TXT, DOCX, PDF
+- **Plans & quotas** — Free (2,000 words/mo), Pro (100,000), Enterprise (unlimited), 30-day rolling reset
+- **Developer API** — issue `hf_live_…` keys from the dashboard, then `POST /api/v1/humanize` with `Authorization: Bearer <key>`
+- **Copyleaks integration** — real plagiarism scans via webhooks once deployed to a public URL (`PUBLIC_BASE_URL`); LLM-based estimate on localhost
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env   # fill in DATABASE_URL, DIRECT_URL, GROQ_API_KEY, …
+npx prisma migrate dev # apply schema to your Postgres
+npm run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without a `GROQ_API_KEY` the app runs in mock mode — the full pipeline works, but rewrites use a rule-based fallback instead of a real model.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See [.env.example](.env.example) for every variable. Minimum to run: `DATABASE_URL`, `DIRECT_URL`. For real AI output: `GROQ_API_KEY`. For real plagiarism scans after deploying: `COPYLEAKS_EMAIL`, `COPYLEAKS_KEY`, `PUBLIC_BASE_URL`.
 
-## Learn More
+## API
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+curl -X POST https://your-host/api/v1/humanize \
+  -H "Authorization: Bearer hf_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Text to humanize", "mode": "Humanize"}'
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Keys are created on the dashboard (`/dashboard` → API keys). Words consumed count against the account's monthly quota.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Not yet implemented
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Payments (Stripe), team collaboration, browser extension / Word add-in, blog & legal pages. Human/AI scores in the humanize flow are estimates; the AI Detector tool gives the real LLM-judged verdict.

@@ -1,0 +1,59 @@
+.hf-how {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(56px, 7vw, 96px) clamp(18px, 4vw, 40px);
+}
+
+.hf-how-heading {
+  max-width: 640px;
+}
+
+.hf-how-grid {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.hf-how-step {
+  position: relative;
+  padding-top: 26px;
+}
+
+.hf-how-step-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+}
+
+.hf-how-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 11%, #fff);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.hf-how-step-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0a1120;
+}
+
+.hf-how-step-desc {
+  margin: 9px 0 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #59647a;
+}

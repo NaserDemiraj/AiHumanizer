@@ -1,0 +1,243 @@
+.hf-dashboard-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(56px, 7vw, 96px) clamp(18px, 4vw, 40px);
+}
+
+.hf-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(32px, 4vw, 56px);
+  align-items: center;
+}
+
+.hf-dashboard-sub {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #59647a;
+}
+
+.hf-dashboard-highlights {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.hf-dashboard-highlight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.07);
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #37435a;
+}
+
+.hf-dashboard-highlight-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.hf-dashboard-mock {
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 30px 70px -34px rgba(16, 24, 40, 0.28);
+  overflow: hidden;
+}
+
+.hf-dashboard-mock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(12, 20, 37, 0.06);
+}
+
+.hf-dashboard-mock-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0a1120;
+  letter-spacing: -0.01em;
+}
+
+.hf-dashboard-mock-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hf-dashboard-plan-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 11%, #fff);
+  padding: 5px 11px;
+  border-radius: 100px;
+}
+
+.hf-dashboard-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--accent), #8b7cf6);
+}
+
+.hf-dashboard-mock-body {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.hf-dashboard-mock-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hf-dashboard-credits-card {
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #0b1220, #1a2540);
+  color: #fff;
+}
+
+.hf-dashboard-credits-label {
+  font-size: 12px;
+  color: #9faac6;
+  font-weight: 600;
+}
+
+.hf-dashboard-credits-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.hf-dashboard-credits-track {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.hf-dashboard-credits-fill {
+  height: 100%;
+  width: 68%;
+  border-radius: 100px;
+  background: var(--accent);
+}
+
+.hf-dashboard-credits-note {
+  font-size: 11px;
+  color: #8c99b5;
+  margin-top: 7px;
+}
+
+.hf-dashboard-mini-stats {
+  display: grid;
+  gap: 12px;
+}
+
+.hf-dashboard-mini-stat {
+  padding: 13px 15px;
+  border: 1px solid rgba(12, 20, 37, 0.07);
+  border-radius: 13px;
+}
+
+.hf-dashboard-mini-stat-label {
+  font-size: 11.5px;
+  color: #8a94a6;
+  font-weight: 600;
+}
+
+.hf-dashboard-mini-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0a1120;
+}
+
+.hf-dashboard-docs {
+  border: 1px solid rgba(12, 20, 37, 0.07);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.hf-dashboard-docs-header {
+  padding: 11px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a94a6;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #fbfcfe;
+  border-bottom: 1px solid rgba(12, 20, 37, 0.06);
+}
+
+.hf-dashboard-doc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(12, 20, 37, 0.05);
+}
+
+.hf-dashboard-doc-row:last-child {
+  border-bottom: none;
+}
+
+.hf-dashboard-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.hf-dashboard-doc-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, #fff);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hf-dashboard-doc-text {
+  min-width: 0;
+}
+
+.hf-dashboard-doc-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0a1120;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hf-dashboard-doc-time {
+  font-size: 11.5px;
+  color: #8a94a6;
+}
+
+.hf-dashboard-doc-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 100px;
+  white-space: nowrap;
+}

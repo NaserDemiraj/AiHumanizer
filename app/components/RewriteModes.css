@@ -1,0 +1,88 @@
+.hf-modes-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(30px, 4vw, 48px) clamp(18px, 4vw, 40px);
+}
+
+.hf-modes-panel {
+  background: linear-gradient(150deg, #0b1220, #131c34);
+  border-radius: 26px;
+  padding: clamp(30px, 5vw, 60px);
+  overflow: hidden;
+  position: relative;
+}
+
+.hf-modes-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(700px 340px at 85% 0%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 60%);
+  pointer-events: none;
+}
+
+.hf-modes-content {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  align-items: center;
+}
+
+.hf-modes-eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 55%, #fff);
+}
+
+.hf-modes-title {
+  margin: 12px 0 0;
+  font-size: clamp(28px, 3.6vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  color: #fff;
+}
+
+.hf-modes-desc {
+  margin: 16px 0 0;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: #a9b4cc;
+}
+
+.hf-modes-selected {
+  margin: 20px 0 0;
+  font-size: 14px;
+  color: #8c99b5;
+}
+
+.hf-modes-selected-value {
+  color: #fff;
+  font-weight: 700;
+}
+
+.hf-modes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hf-mode-chip {
+  cursor: pointer;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 100px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #c6d0e6;
+}
+
+.hf-mode-chip-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
