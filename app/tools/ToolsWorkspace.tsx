@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { TRANSLATE_LANGUAGES, CITATION_STYLES, TONE_OPTIONS } from "../lib/content";
+import UploadButton from "../components/UploadButton";
 import "../components/LiveEditor.css";
 import "./tools.css";
 
@@ -239,6 +240,21 @@ export default function ToolsWorkspace() {
                   ))}
                 </select>
               )}
+              <UploadButton
+                className="hf-editor-reset"
+                onExtracted={(uploaded) => {
+                  setText(uploaded);
+                  setOutput(null);
+                  setExtra(null);
+                  setAnalysis(null);
+                  setError(null);
+                  setNeedsAuth(false);
+                }}
+                onError={(message) => {
+                  setNeedsAuth(false);
+                  setError(message);
+                }}
+              />
               <button className="hf-editor-run" onClick={run} disabled={pending || !text.trim()}>
                 {pending ? "Working…" : "Run"}
               </button>

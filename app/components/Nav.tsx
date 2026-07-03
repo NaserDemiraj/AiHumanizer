@@ -1,13 +1,23 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { navLinks } from "../lib/content";
-import { getCurrentUser } from "../lib/auth";
-import LogoutButton from "./LogoutButton";
-import MobileMenu from "./MobileMenu";
+import NavAuth from "./NavAuth";
 import "./Nav.css";
 
-export default async function Nav() {
-  const user = await getCurrentUser();
+function NavAuthFallback() {
+  return (
+    <div className="hf-nav-actions">
+      <Link href="/login" className="hf-nav-login">
+        Login
+      </Link>
+      <Link href="/signup" className="hf-nav-cta">
+        Get Started
+      </Link>
+    </div>
+  );
+}
 
+export default function Nav() {
   return (
     <header className="hf-nav-header">
       <nav className="hf-nav">
@@ -26,26 +36,9 @@ export default async function Nav() {
             </Link>
           ))}
         </div>
-        <div className="hf-nav-actions">
-          {user ? (
-            <>
-              <LogoutButton className="hf-nav-login" />
-              <Link href="/dashboard" className="hf-nav-cta">
-                Dashboard
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="hf-nav-login">
-                Login
-              </Link>
-              <Link href="/signup" className="hf-nav-cta">
-                Get Started
-              </Link>
-            </>
-          )}
-        </div>
-        <MobileMenu links={navLinks} signedIn={Boolean(user)} />
+        <Suspense fallback={<NavAuthFallback />}>
+          <NavAuth links={navLinks} />
+        </Suspense>
       </nav>
     </header>
   );

@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/app/lib/auth";
 import { rewriteText, estimateMetrics } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
 import { checkQuota, logActivity } from "@/app/lib/usage";
+import { rateLimit } from "@/app/lib/ratelimit";
 
 const MAX_INPUT_WORDS = 3_000;
 
@@ -11,6 +12,17 @@ export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in to humanize text" }, { status: 401 });
+  }
+
+  // Each humanize call makes 4 Groq requests (rewrite + detect + grammar +
+  // plagiarism scoring) — caps runaway/scripted usage independent of the
+  // word quota, which a burst of short texts wouldn't otherwise trip.
+  const limit = await rateLimit("humanize", user.id, 20, 10 * 60);
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: "You're humanizing text too quickly. Wait a few minutes and try again." },
+      { status: 429 },
+    );
   }
 
   let body: { text?: string; mode?: string };

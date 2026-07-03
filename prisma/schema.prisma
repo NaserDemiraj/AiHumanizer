@@ -12,20 +12,40 @@ enum Plan {
   ENTERPRISE
 }
 
+enum VerificationTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  name         String
-  passwordHash String
-  plan         Plan       @default(FREE)
-  wordsUsed    Int        @default(0)
-  periodStart  DateTime   @default(now())
-  createdAt    DateTime   @default(now())
-  sessions     Session[]
-  documents    Document[]
-  projects     Project[]
-  activities   Activity[]
-  apiKeys      ApiKey[]
+  id              String               @id @default(cuid())
+  email           String               @unique
+  name            String
+  passwordHash    String
+  emailVerified   Boolean              @default(false)
+  plan            Plan                 @default(FREE)
+  wordsUsed       Int                  @default(0)
+  periodStart     DateTime             @default(now())
+  createdAt       DateTime             @default(now())
+  sessions        Session[]
+  documents       Document[]
+  projects        Project[]
+  activities      Activity[]
+  apiKeys         ApiKey[]
+  verificationTokens VerificationToken[]
+}
+
+model VerificationToken {
+  id        String                @id @default(cuid())
+  token     String                @unique
+  type      VerificationTokenType
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime              @default(now())
+
+  @@index([userId, type])
 }
 
 model Session {

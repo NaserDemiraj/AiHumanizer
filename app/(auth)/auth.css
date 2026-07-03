@@ -70,6 +70,28 @@
   color: #37435a;
 }
 
+.hf-auth-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hf-auth-forgot-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hf-auth-success {
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #12a150;
+  background: #eaf7ef;
+  border: 1px solid #cdeed9;
+  border-radius: 11px;
+}
+
 .hf-auth-input {
   width: 100%;
   padding: 12px 14px;

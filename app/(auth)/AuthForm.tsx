@@ -79,9 +79,16 @@ export default function AuthForm({ variant }: Props) {
             <input className="hf-auth-input" id="email" name="email" type="email" required autoComplete="email" />
           </div>
           <div className="hf-auth-field">
-            <label className="hf-auth-label" htmlFor="password">
-              Password
-            </label>
+            <div className="hf-auth-label-row">
+              <label className="hf-auth-label" htmlFor="password">
+                Password
+              </label>
+              {variant === "login" && (
+                <Link href="/forgot-password" className="hf-auth-forgot-link">
+                  Forgot password?
+                </Link>
+              )}
+            </div>
             <input
               className="hf-auth-input"
               id="password"

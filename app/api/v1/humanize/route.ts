@@ -4,6 +4,7 @@ import { hashApiKey } from "@/app/lib/apikeys";
 import { rewriteText, estimateMetrics } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
 import { checkQuota, logActivity } from "@/app/lib/usage";
+import { rateLimit, clientIp } from "@/app/lib/ratelimit";
 
 /**
  * Public programmatic API.
@@ -13,6 +14,14 @@ import { checkQuota, logActivity } from "@/app/lib/usage";
  *   { "text": "...", "mode": "Humanize" }
  */
 export async function POST(request: Request) {
+  // Coarse per-IP cap on auth attempts before even touching the DB — API
+  // keys are 24 random bytes so brute-forcing one is infeasible, this is
+  // just to blunt scripted hammering of this endpoint.
+  const authAttempts = await rateLimit("v1-auth", clientIp(request), 60, 60);
+  if (!authAttempts.success) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
+
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
   if (!token) {
@@ -28,6 +37,15 @@ export async function POST(request: Request) {
   });
   if (!apiKey) {
     return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+  }
+
+  // Each call makes 4 Groq requests (rewrite + detect + grammar + plagiarism)
+  const usage = await rateLimit("v1-humanize", apiKey.id, 30, 60 * 60);
+  if (!usage.success) {
+    return NextResponse.json(
+      { error: "API rate limit exceeded for this key. Try again later." },
+      { status: 429 },
+    );
   }
 
   let body: { text?: string; mode?: string };

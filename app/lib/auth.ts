@@ -21,6 +21,11 @@ export async function createSession(userId: string): Promise<void> {
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
 
   await prisma.session.create({ data: { token, userId, expiresAt } });
+  // Opportunistic cleanup — piggybacks on login/signup traffic instead of
+  // needing a separate cron job. Fire-and-forget so it never blocks login.
+  prisma.session
+    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    .catch((err) => console.error("Session cleanup failed:", err));
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {

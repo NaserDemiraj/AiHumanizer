@@ -11,6 +11,7 @@ import {
   copyleaksWebhooksReachable,
   submitPlagiarismScan,
 } from "@/app/lib/copyleaks";
+import { rateLimit } from "@/app/lib/ratelimit";
 
 const TOOL_NAMES: ToolName[] = [
   "detect", "grammar", "paraphrase", "summarize",
@@ -26,6 +27,14 @@ export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in to use the writing tools" }, { status: 401 });
+  }
+
+  const limit = await rateLimit("tools", user.id, 40, 10 * 60);
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: "You're running tools too quickly. Wait a few minutes and try again." },
+      { status: 429 },
+    );
   }
 
   let body: { tool?: string; text?: string; options?: Record<string, string> };

@@ -112,6 +112,77 @@ export async function rewriteText(text: string, mode: string): Promise<string> {
   );
 }
 
+/**
+ * Streaming variant of rewriteText — yields text deltas as Groq generates
+ * them (OpenAI-compatible SSE), instead of waiting for the full completion.
+ * Falls back to a single-chunk yield of the mock rewrite with no API key.
+ */
+export async function* streamRewriteText(
+  text: string,
+  mode: string,
+): AsyncGenerator<string, void, unknown> {
+  if (!hasApiKey()) {
+    yield mockRewrite(text);
+    return;
+  }
+
+  const instruction = MODE_INSTRUCTIONS[mode] ?? MODE_INSTRUCTIONS.Humanize;
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+      temperature: mode === "Humanize" ? 0.95 : 0.7,
+      stream: true,
+      messages: [
+        {
+          role: "system",
+          content: `You rewrite text. ${instruction} Preserve the original meaning and approximate length. Reply with ONLY the rewritten text — no preamble, no quotes, no explanations.`,
+        },
+        { role: "user", content: text },
+      ],
+    }),
+  });
+
+  if (!res.ok || !res.body) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Groq API error ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? ""; // last (possibly incomplete) line stays buffered
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const payload = trimmed.slice(5).trim();
+      if (payload === "[DONE]") return;
+
+      try {
+        const parsed = JSON.parse(payload) as {
+          choices: { delta?: { content?: string } }[];
+        };
+        const delta = parsed.choices?.[0]?.delta?.content;
+        if (delta) yield delta;
+      } catch {
+        // Ignore malformed SSE fragments (shouldn't happen mid-stream)
+      }
+    }
+  }
+}
+
 export async function runTool(
   tool: ToolName,
   text: string,

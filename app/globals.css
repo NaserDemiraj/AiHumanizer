@@ -83,6 +83,18 @@ button {
   color: var(--accent);
 }
 
+.hf-upload-input-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .hf-h2 {
   margin: 12px 0 0;
   font-size: clamp(30px, 4vw, 46px);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { metricDefs, MetricColorKey, modeNames } from "../lib/content";
+import UploadButton from "./UploadButton";
 import "./LiveEditor.css";
 
 const colorMap: Record<MetricColorKey, string> = {
@@ -65,30 +66,70 @@ export default function LiveEditor() {
   const [error, setError] = useState<string | null>(null);
   const [needsAuth, setNeedsAuth] = useState(false);
 
-  const done = improved !== null;
+  const complete = metrics !== null;
+  const streaming = pending && improved !== null;
   const words = countWords(text);
 
   async function runHumanize() {
     setError(null);
     setNeedsAuth(false);
+    setMetrics(null);
+    setImproved(""); // switches the pane from "Awaiting" to a live-filling state
     setPending(true);
+
     try {
-      const res = await fetch("/api/humanize", {
+      const res = await fetch("/api/humanize/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, mode }),
       });
-      const data = await res.json().catch(() => null);
+
       if (res.status === 401) {
         setNeedsAuth(true);
-      } else if (!res.ok) {
+        setImproved(null);
+        return;
+      }
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => null);
         setError(data?.error ?? "Something went wrong. Try again.");
-      } else {
-        setImproved(data.improvedText);
-        setMetrics(data.metrics);
+        setImproved(null);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let streamedText = "";
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event = JSON.parse(line) as
+            | { type: "delta"; text: string }
+            | { type: "done"; metrics: ApiMetrics }
+            | { type: "error"; error: string };
+
+          if (event.type === "delta") {
+            streamedText += event.text;
+            setImproved(streamedText);
+          } else if (event.type === "done") {
+            setMetrics(event.metrics);
+          } else if (event.type === "error") {
+            setError(event.error);
+            setImproved(null);
+          }
+        }
       }
     } catch {
       setError("Network error. Check your connection and try again.");
+      setImproved(null);
     } finally {
       setPending(false);
     }
@@ -103,7 +144,7 @@ export default function LiveEditor() {
   }
 
   const rows = metricDefs.map((m) => {
-    const value = done && metrics ? metrics[METRIC_KEYS[m.label]] : m.before;
+    const value = complete && metrics ? metrics[METRIC_KEYS[m.label]] : m.before;
     return { label: m.label, value, color: colorMap[m.colorKey] };
   });
 
@@ -140,6 +181,20 @@ export default function LiveEditor() {
                 </option>
               ))}
             </select>
+            <UploadButton
+              className="hf-editor-reset"
+              onExtracted={(uploaded) => {
+                setText(uploaded);
+                setImproved(null);
+                setMetrics(null);
+                setError(null);
+                setNeedsAuth(false);
+              }}
+              onError={(message) => {
+                setNeedsAuth(false);
+                setError(message);
+              }}
+            />
             <button onClick={reset} className="hf-editor-reset">
               Reset
             </button>
@@ -178,18 +233,18 @@ export default function LiveEditor() {
           </div>
           <div
             className="hf-editor-pane hf-editor-pane-improved"
-            style={{ background: done ? "#F0FBF4" : "#FBFCFE" }}
+            style={{ background: complete ? "#F0FBF4" : streaming ? "#F5F8FF" : "#FBFCFE" }}
           >
             <div className="hf-editor-pane-header">
               <span className="hf-editor-pane-label">Improved text</span>
               <span
                 className="hf-editor-pane-badge"
                 style={{
-                  color: done ? "#12A150" : "#8A94A6",
-                  background: done ? "#EAF7EF" : "#F1F3F8",
+                  color: complete ? "#12A150" : streaming ? "var(--accent)" : "#8A94A6",
+                  background: complete ? "#EAF7EF" : streaming ? "#EAF1FF" : "#F1F3F8",
                 }}
               >
-                {done ? "Human" : "Awaiting"}
+                {complete ? "Human" : streaming ? "Generating…" : "Awaiting"}
               </span>
             </div>
             {needsAuth ? (
@@ -208,7 +263,7 @@ export default function LiveEditor() {
                 {error}
               </p>
             ) : (
-              <p className="hf-editor-pane-text-improved" style={{ opacity: done ? 1 : 0.55 }}>
+              <p className="hf-editor-pane-text-improved" style={{ opacity: complete || streaming ? 1 : 0.55 }}>
                 {improved ?? IMPROVED_PLACEHOLDER}
               </p>
             )}
@@ -252,7 +307,7 @@ export default function LiveEditor() {
             <div className="hf-editor-metrics-footer-item">
               <span className="hf-editor-metrics-footer-label">Tone</span>
               <span className="hf-editor-metrics-footer-value hf-editor-metrics-footer-value-accent">
-                {done ? (MODE_TONES[mode] ?? "Natural") : "Corporate"}
+                {complete ? (MODE_TONES[mode] ?? "Natural") : "Corporate"}
               </span>
             </div>
             <div className="hf-editor-metrics-footer-item">

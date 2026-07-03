@@ -1,4 +1,5 @@
 import "server-only";
+import { signWebhookToken } from "./webhookAuth";
 
 /**
  * Copyleaks v3 plagiarism API. Results arrive via webhook, so real scans
@@ -45,6 +46,7 @@ export async function submitPlagiarismScan(text: string, scanId: string): Promis
   const token = await getCopyleaksToken();
   const base = process.env.PUBLIC_BASE_URL!.replace(/\/$/, "");
   const sandbox = (process.env.COPYLEAKS_SANDBOX ?? "true") !== "false";
+  const sig = signWebhookToken(scanId);
 
   const res = await fetch(`https://api.copyleaks.com/v3/scans/submit/file/${scanId}`, {
     method: "PUT",
@@ -58,7 +60,7 @@ export async function submitPlagiarismScan(text: string, scanId: string): Promis
       properties: {
         sandbox,
         webhooks: {
-          status: `${base}/api/webhooks/copyleaks/{STATUS}/${scanId}`,
+          status: `${base}/api/webhooks/copyleaks/{STATUS}/${scanId}?sig=${sig}`,
         },
       },
     }),

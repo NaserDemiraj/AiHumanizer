@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
 import type { CopyleaksCompletedPayload } from "@/app/lib/copyleaks";
+import { verifyWebhookToken } from "@/app/lib/webhookAuth";
 
 /**
- * Receives Copyleaks scan status callbacks. The scanId in the path is our
- * Document id (unguessable cuid), which scopes each callback to one record.
+ * Receives Copyleaks scan status callbacks. Copyleaks doesn't sign its
+ * payloads, so submitPlagiarismScan() embeds a per-scan HMAC in the
+ * webhook URL (?sig=...) — verified here before touching any data. The
+ * scanId in the path is our Document id.
  */
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ status: string; scanId: string }> },
 ) {
   const { status, scanId } = await params;
+
+  const sig = new URL(request.url).searchParams.get("sig");
+  if (!verifyWebhookToken(scanId, sig)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
 
   const doc = await prisma.document.findUnique({ where: { id: scanId } });
   if (!doc || doc.kind !== "plagiarism") {
