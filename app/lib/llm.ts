@@ -28,7 +28,15 @@ export type ToolResult = {
 
 const MODE_INSTRUCTIONS: Record<string, string> = {
   Humanize:
-    "Rewrite so it reads like a thoughtful human wrote it: varied sentence length, concrete wording, no corporate buzzwords, no em-dash overuse, natural flow.",
+    "Rewrite so it reads like a real person wrote it in one sitting, not an AI. " +
+    "Aggressively vary sentence length — mix short, blunt sentences with longer, winding ones; " +
+    "an occasional fragment or a sentence starting with 'And' or 'But' is fine. " +
+    "Cut every hedge and filler phrase (e.g. 'it is important to note', 'in today's landscape', " +
+    "'furthermore', 'moreover', 'in conclusion') — humans just say the thing. " +
+    "Replace abstract corporate nouns with plain, concrete wording (say what actually happens, " +
+    "not 'operational efficiencies' or 'stakeholder value'). Avoid neat three-part lists and " +
+    "perfectly parallel structure; real writing is a little lopsided. Use contractions where natural. " +
+    "Never use em dashes. Do not invent new facts or details — only restyle what's already there.",
   Academic:
     "Rewrite in a clear academic register: precise terminology, measured claims, formal but readable.",
   Professional:
@@ -54,7 +62,12 @@ function hasApiKey(): boolean {
   return Boolean(process.env.GROQ_API_KEY);
 }
 
-async function groqChat(system: string, user: string, jsonMode = false): Promise<string> {
+async function groqChat(
+  system: string,
+  user: string,
+  jsonMode = false,
+  temperature?: number,
+): Promise<string> {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -63,7 +76,7 @@ async function groqChat(system: string, user: string, jsonMode = false): Promise
     },
     body: JSON.stringify({
       model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-      temperature: jsonMode ? 0.2 : 0.7,
+      temperature: temperature ?? (jsonMode ? 0.2 : 0.7),
       ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
       messages: [
         { role: "system", content: system },
@@ -94,6 +107,8 @@ export async function rewriteText(text: string, mode: string): Promise<string> {
   return groqChat(
     `You rewrite text. ${instruction} Preserve the original meaning and approximate length. Reply with ONLY the rewritten text — no preamble, no quotes, no explanations.`,
     text,
+    false,
+    mode === "Humanize" ? 0.95 : 0.7,
   );
 }
 
