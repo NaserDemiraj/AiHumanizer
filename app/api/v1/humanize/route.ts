@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Rewrite service unavailable" }, { status: 502 });
   }
 
-  const metrics = estimateMetrics(text, improvedText);
+  const metrics = await estimateMetrics(text, improvedText);
   await prisma.$transaction([
     prisma.user.update({
       where: { id: apiKey.userId },

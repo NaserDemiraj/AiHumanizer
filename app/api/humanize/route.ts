@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const metrics = estimateMetrics(text, improvedText);
+  const metrics = await estimateMetrics(text, improvedText);
   const title = text.split(/\s+/).slice(0, 6).join(" ") + (words > 6 ? "…" : "");
 
   const [document] = await prisma.$transaction([

@@ -270,22 +270,64 @@ function mockAiProbability(text: string): number {
   return Math.min(96, Math.round(20 + (hits / words) * 600));
 }
 
-/**
- * Post-rewrite scores for the humanize flow. Readability and SEO are
- * computed for real; human/AI/plagiarism/grammar remain estimates until
- * dedicated detector providers are connected.
- */
-export function estimateMetrics(originalText: string, improvedText: string): Metrics {
-  const jitter = (base: number, range: number) =>
-    Math.max(0, Math.min(100, Math.round(base + (Math.random() - 0.5) * range)));
+/** Naive, deterministic issue count used only when no GROQ_API_KEY is set. */
+function mockGrammarIssues(text: string): number {
+  let issues = /\s{2,}/.test(text) ? 1 : 0;
+  const repeated = text.match(/\b(\w+)\s+\1\b/gi);
+  issues += repeated?.length ?? 0;
+  const sentences = text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0);
+  for (const s of sentences) if (/^[a-z]/.test(s.trim())) issues += 1;
+  return issues;
+}
 
-  const changed = originalText.trim() !== improvedText.trim();
-  return {
-    humanScore: changed ? jitter(96, 5) : jitter(40, 20),
-    aiDetection: changed ? jitter(4, 5) : jitter(60, 20),
-    plagiarism: jitter(2, 3),
-    grammar: jitter(97, 4),
-    readability: fleschReadingEase(improvedText),
-    seoScore: seoScore(improvedText),
+/**
+ * Post-rewrite scores for the humanize flow. Readability and SEO are always
+ * computed for real. When a GROQ_API_KEY is configured, human/AI/plagiarism/
+ * grammar are also real — they reuse the same LLM-judged detector, grammar,
+ * and plagiarism-estimate calls that back the standalone tools, run in
+ * parallel against the rewritten text. Without a key, they fall back to
+ * deterministic text heuristics instead of random jitter.
+ */
+export async function estimateMetrics(originalText: string, improvedText: string): Promise<Metrics> {
+  const readability = fleschReadingEase(improvedText);
+  const seo = seoScore(improvedText);
+
+  const heuristicFallback = (): Metrics => {
+    const aiProbability = mockAiProbability(improvedText);
+    const grammarScore = Math.max(50, 100 - mockGrammarIssues(improvedText) * 8);
+    return {
+      humanScore: 100 - aiProbability,
+      aiDetection: aiProbability,
+      plagiarism: Math.min(40, Math.round(aiProbability / 3)),
+      grammar: grammarScore,
+      readability,
+      seoScore: seo,
+    };
   };
+
+  if (!hasApiKey()) return heuristicFallback();
+
+  try {
+    const [detectResult, grammarResult, plagiarismResult] = await Promise.all([
+      runTool("detect", improvedText),
+      runTool("grammar", improvedText),
+      runTool("plagiarism", improvedText),
+    ]);
+
+    const aiProbability = Number(detectResult.extra?.aiProbability ?? 5);
+    const fixes = (grammarResult.extra?.fixes as string[] | undefined) ?? [];
+    const originality = Number(plagiarismResult.extra?.originalityScore ?? 95);
+
+    return {
+      humanScore: 100 - aiProbability,
+      aiDetection: aiProbability,
+      plagiarism: Math.max(0, 100 - originality),
+      grammar: Math.max(50, 100 - fixes.length * 3),
+      readability,
+      seoScore: seo,
+    };
+  } catch (err) {
+    console.error("estimateMetrics: detector/grammar/plagiarism calls failed, using heuristic fallback:", err);
+    return heuristicFallback();
+  }
 }
