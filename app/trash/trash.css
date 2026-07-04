@@ -1,0 +1,28 @@
+.hf-trash-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hf-trash-delete {
+  cursor: pointer;
+  padding: 9px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #e5484d;
+  background: #fff;
+  border: 1px solid #f7d9da;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+.hf-trash-delete:hover {
+  background: #fdf2f2;
+}
+
+.hf-trash-delete:disabled,
+.hf-trash-actions .hf-dash-small-btn:disabled {
+  opacity: 0.5;
+}

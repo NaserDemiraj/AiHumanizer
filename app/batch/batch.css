@@ -1,0 +1,51 @@
+.hf-batch-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.hf-batch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.07);
+  border-radius: 12px;
+  padding: 11px 15px;
+}
+
+.hf-batch-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0a1120;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hf-batch-status {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hf-batch-status-queued { color: #8a94a6; }
+.hf-batch-status-uploading,
+.hf-batch-status-processing { color: var(--accent); }
+.hf-batch-status-done { color: #12a150; }
+.hf-batch-status-error { color: #e5484d; }
+
+.hf-batch-remove {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #8a94a6;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.hf-batch-remove:hover {
+  color: #e5484d;
+}

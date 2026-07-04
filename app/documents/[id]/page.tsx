@@ -5,6 +5,7 @@ import { prisma } from "../../lib/db";
 import { getCurrentUser } from "../../lib/auth";
 import Nav from "../../components/Nav";
 import { FavoriteToggle, DeleteDocInline } from "./DocActions";
+import TagsEditor from "./TagsEditor";
 import "../../page.css";
 import "./document.css";
 
@@ -83,9 +84,12 @@ export default async function DocumentPage({
         <div className="hf-doc-export-row">
           <span className="hf-doc-export-label">Export:</span>
           <a href={`/api/documents/${doc.id}/export?format=txt`} className="hf-doc-export-btn">TXT</a>
+          <a href={`/api/documents/${doc.id}/export?format=md`} className="hf-doc-export-btn">MD</a>
           <a href={`/api/documents/${doc.id}/export?format=docx`} className="hf-doc-export-btn">DOCX</a>
           <a href={`/api/documents/${doc.id}/export?format=pdf`} className="hf-doc-export-btn">PDF</a>
         </div>
+
+        <TagsEditor id={doc.id} tags={doc.tags} />
 
         <div className="hf-doc-panes">
           <div className="hf-doc-pane">

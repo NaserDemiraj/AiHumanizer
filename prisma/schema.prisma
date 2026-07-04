@@ -25,6 +25,9 @@ model User {
   emailVerified   Boolean              @default(false)
   plan            Plan                 @default(FREE)
   wordsUsed       Int                  @default(0)
+  ocrPagesUsed    Int                  @default(0)
+  conversionsUsed Int                  @default(0)
+  storageBytes    BigInt               @default(0)
   periodStart     DateTime             @default(now())
   createdAt       DateTime             @default(now())
   sessions        Session[]
@@ -71,23 +74,53 @@ model Project {
 }
 
 model Document {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId    String?
-  project      Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project      Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
   title        String
-  kind         String   @default("humanize")
+  kind         String    @default("humanize")
   originalText String
   improvedText String?
-  mode         String   @default("Humanize")
+  /// Rich editor content (Tiptap/ProseMirror JSON) for kind "editor" docs
+  content      Json?
+  /// Storage key of the uploaded original file, if any
+  sourcePath   String?
+  /// Detected format of the uploaded original (pdf, docx, doc, rtf, odt, txt, md, png, …)
+  sourceFormat String?
+  /// Size in bytes of the stored original — reclaimed from the user's quota on delete
+  sourceBytes  Int?
+  mode         String    @default("Humanize")
   metrics      Json?
-  favorite     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  favorite     Boolean   @default(false)
+  tags         String[]  @default([])
+  /// Soft delete — trash/restore
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  versions     DocumentVersion[]
 
   @@index([userId, createdAt])
   @@index([projectId])
+}
+
+model DocumentVersion {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  /// User-editable label, defaults to the operation that created it
+  label      String
+  /// The operation that produced this version (manual-edit, humanize, grammar, …)
+  op         String
+  /// Plain-text snapshot (always present, used for diffs)
+  text       String
+  /// Rich content snapshot when the version came from the editor
+  content    Json?
+  metrics    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([documentId, createdAt])
 }
 
 model Activity {

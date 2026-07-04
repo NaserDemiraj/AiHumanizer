@@ -183,6 +183,56 @@ export async function* streamRewriteText(
   }
 }
 
+/**
+ * Rewrites an array of text blocks (e.g. DOCX paragraphs) in one LLM call
+ * per chunk, preserving the 1:1 block mapping — the backbone of the
+ * formatting-preserving DOCX patcher. Falls back to per-block mock rewrites
+ * without an API key.
+ */
+export async function rewriteBlocks(blocks: string[], mode: string): Promise<string[]> {
+  if (blocks.length === 0) return [];
+  if (!hasApiKey()) return blocks.map((b) => mockRewrite(b));
+
+  const instruction = MODE_INSTRUCTIONS[mode] ?? MODE_INSTRUCTIONS.Humanize;
+  const out: string[] = new Array(blocks.length);
+
+  // Chunk blocks so each request stays well under context/latency limits
+  const chunks: { start: number; items: string[] }[] = [];
+  let current: string[] = [];
+  let currentWords = 0;
+  let start = 0;
+  blocks.forEach((block, i) => {
+    const words = block.trim().split(/\s+/).length;
+    if (current.length > 0 && (currentWords + words > 1200 || current.length >= 40)) {
+      chunks.push({ start, items: current });
+      current = [];
+      currentWords = 0;
+      start = i;
+    }
+    current.push(block);
+    currentWords += words;
+  });
+  if (current.length > 0) chunks.push({ start, items: current });
+
+  for (const chunk of chunks) {
+    const raw = await groqChat(
+      `You rewrite text blocks. ${instruction} Preserve each block's meaning and approximate length. You receive a JSON array of ${chunk.items.length} strings; respond with JSON only: {"blocks": [<exactly ${chunk.items.length} rewritten strings, same order>]}. Rewrite each block independently. Keep blocks that are just numbers, dates, names, or headings shorter than 6 words UNCHANGED.`,
+      JSON.stringify(chunk.items),
+      true,
+    );
+    const parsed = parseJson<{ blocks: string[] }>(raw);
+    if (!Array.isArray(parsed.blocks) || parsed.blocks.length !== chunk.items.length) {
+      throw new Error(
+        `Block rewrite returned ${parsed.blocks?.length ?? 0} blocks, expected ${chunk.items.length}`,
+      );
+    }
+    parsed.blocks.forEach((b, j) => {
+      out[chunk.start + j] = typeof b === "string" ? b : chunk.items[j];
+    });
+  }
+  return out;
+}
+
 export async function runTool(
   tool: ToolName,
   text: string,

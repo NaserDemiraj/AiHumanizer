@@ -9,15 +9,21 @@ Built with **Next.js 16 (App Router) + TypeScript**, **Prisma 7 + Neon Postgres*
 - **Marketing site** — hero, features, interactive rewrite-mode picker, live editor demo, dashboard preview, pricing with comparison table, testimonials, FAQ, mobile menu
 - **Auth** — email/password signup & login, bcrypt hashing, DB-backed 30-day sessions (httpOnly cookies), password reset and signup email verification via Resend
 - **AI Humanizer** — 14 rewrite modes (Humanize, Academic, SEO, Friendly, …) via Groq, **streamed token-by-token** into the editor; post-rewrite Human/AI/Grammar/Plagiarism scores are real LLM-judged results, not placeholders
+- **Rich document editor** (`/editor`) — Tiptap-based: upload PDF/DOCX/DOC/RTF/ODT/TXT/MD or images, manual editing with formatting toolbar, undo/redo, find & replace, drag-and-drop file insert, autosave, live statistics sidebar
+- **AI editing in the editor** — run any operation on a selection or the whole document, **chain up to 6 operations** (scored once at the end), and review every change in a word-level **diff preview with accept / reject / partial accept**
+- **Version control** — every AI operation snapshots the prior state; restore, compare (highlighted diff), rename, delete
+- **Preserve-formatting mode** — AI-rewrites the text *inside* your original DOCX via in-place OOXML patching: styles, tables, images, headers, footers, and margins stay untouched (per-paragraph fidelity; intra-paragraph character formatting on edited paragraphs is the known trade-off)
+- **OCR** — Tesseract-based, in-process: PNG/JPG/WEBP images and auto-detected scanned PDFs become editable text (per-plan page quotas)
+- **File converter** (`/convert`) — PDF/DOCX/DOC/RTF/ODT/TXT/MD in → PDF/DOCX/TXT/MD out, no AI, no word credits (per-plan conversion quotas)
+- **Batch processing** (`/batch`) — up to 5 files, one AI operation across all, download results as ZIP
 - **Writing tools** (`/tools`) — AI Detector, Grammar Checker, Paraphraser, Summarizer, Translator (33 languages), Tone Changer, Citation Generator (APA/MLA/Chicago/Harvard), Plagiarism Checker, free Text Analyzer
-- **Document upload** — paste text or upload a `.txt` / `.docx` / `.pdf` file, parsed server-side
-- **Real computed metrics** — Flesch-Kincaid readability, keyword density, SEO score, word/char/sentence counts
-- **Workspace** — dashboard with usage meter, document history with per-document pages, favorites, projects, activity feed
-- **Exports** — TXT, DOCX, PDF
-- **Plans & quotas** — Free (2,000 words/mo), Pro (100,000), Enterprise (unlimited), 30-day rolling reset
-- **Developer API** — issue `hf_live_…` keys from the dashboard, then `POST /api/v1/humanize` with `Authorization: Bearer <key>`
+- **Real computed metrics** — Flesch-Kincaid readability, keyword density, SEO score, word/char/sentence/paragraph counts, reading & speaking time
+- **Workspace** — dashboard with usage meter, search (title/text/tags), document history, favorites, tags, projects, trash with restore, activity feed
+- **Exports** — TXT, Markdown, DOCX, PDF (single documents and batch ZIP)
+- **Plans & quotas** — words (Free 2k / Pro 100k / Enterprise unlimited), OCR pages, conversions, and storage bytes, all on a 30-day rolling reset
+- **Developer API** — issue `hf_live_…` keys from the dashboard: `POST /api/v1/humanize`, `/api/v1/tools`, `/api/v1/analyze`, `/api/v1/convert`
 - **Copyleaks integration** — real plagiarism scans via signed webhooks once deployed to a public URL (`PUBLIC_BASE_URL`); LLM-based estimate on localhost
-- **Rate limiting** — login, signup, humanize, tools, and the public API are all capped (Upstash Redis when configured, in-memory fallback otherwise) to prevent brute-forcing and Groq-quota exhaustion
+- **Rate limiting** — every expensive route is capped (Upstash Redis when configured, in-memory fallback otherwise)
 
 ## Setup
 

@@ -8,7 +8,9 @@ export type TextStats = {
   characters: number;
   charactersNoSpaces: number;
   sentences: number;
+  paragraphs: number;
   readingTimeMin: number;
+  speakingTimeMin: number;
 };
 
 export type KeywordDensity = {
@@ -33,12 +35,15 @@ const STOP_WORDS = new Set([
 export function textStats(text: string): TextStats {
   const words = text.trim().split(/\s+/).filter(Boolean);
   const sentences = text.split(/[.!?]+(?:\s|$)/).filter((s) => s.trim().length > 0);
+  const paragraphs = text.split(/\n{2,}/).filter((p) => p.trim().length > 0);
   return {
     words: words.length,
     characters: text.length,
     charactersNoSpaces: text.replace(/\s/g, "").length,
     sentences: Math.max(1, sentences.length),
+    paragraphs: Math.max(1, paragraphs.length),
     readingTimeMin: Math.max(1, Math.ceil(words.length / 200)),
+    speakingTimeMin: Math.max(1, Math.ceil(words.length / 130)),
   };
 }
 

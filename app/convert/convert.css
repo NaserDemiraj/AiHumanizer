@@ -1,0 +1,13 @@
+.hf-convert-controls {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hf-convert-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #37435a;
+}

@@ -49,13 +49,31 @@ function timeAgo(date: Date): string {
   return date.toLocaleDateString();
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
+  const q = (await searchParams).q?.trim() ?? "";
+
   const [documents, projects, activities, apiKeys] = await Promise.all([
     prisma.document.findMany({
-      where: { userId: user.id },
+      where: {
+        userId: user.id,
+        deletedAt: null,
+        ...(q
+          ? {
+              OR: [
+                { title: { contains: q, mode: "insensitive" } },
+                { tags: { has: q.toLowerCase() } },
+                { originalText: { contains: q, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
       orderBy: [{ favorite: "desc" }, { createdAt: "desc" }],
       take: 20,
     }),
@@ -137,7 +155,21 @@ export default async function DashboardPage() {
         <div className="hf-dash-columns">
           <div className="hf-dash-col-main">
             <div className="hf-dashboard-docs hf-dash-docs">
-              <div className="hf-dashboard-docs-header">Recent documents</div>
+              <div className="hf-dashboard-docs-header hf-dash-docs-header-row">
+                <span>{q ? `Search: “${q}”` : "Recent documents"}</span>
+                <form className="hf-dash-search" action="/dashboard" method="get">
+                  <input
+                    className="hf-dash-input"
+                    type="search"
+                    name="q"
+                    placeholder="Search title, text, tags…"
+                    defaultValue={q}
+                  />
+                </form>
+                <Link href="/trash" className="hf-dash-trash-link">
+                  Trash
+                </Link>
+              </div>
               {documents.length === 0 ? (
                 <div className="hf-dash-empty">
                   No documents yet.{" "}
@@ -152,7 +184,10 @@ export default async function DashboardPage() {
                     <div key={doc.id} className="hf-dashboard-doc-row">
                       <div className="hf-dashboard-doc-info">
                         <FavoriteStar id={doc.id} favorite={doc.favorite} />
-                        <Link href={`/documents/${doc.id}`} className="hf-dashboard-doc-info hf-dash-doc-link">
+                        <Link
+                          href={doc.kind === "editor" ? `/editor/${doc.id}` : `/documents/${doc.id}`}
+                          className="hf-dashboard-doc-info hf-dash-doc-link"
+                        >
                           <span className="hf-dashboard-doc-icon">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5" />
@@ -218,10 +253,13 @@ export default async function DashboardPage() {
             </div>
 
             <div className="hf-dash-cta-row">
-              <Link href="/tools" className="hf-dash-new-doc hf-dash-tools-btn">
-                Open tools
+              <Link href="/batch" className="hf-dash-new-doc hf-dash-tools-btn">
+                Batch
               </Link>
-              <Link href="/#editor" className="hf-dash-new-doc">
+              <Link href="/tools" className="hf-dash-new-doc hf-dash-tools-btn">
+                Tools
+              </Link>
+              <Link href="/editor" className="hf-dash-new-doc">
                 + New document
               </Link>
             </div>
