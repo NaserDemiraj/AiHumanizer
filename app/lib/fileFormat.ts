@@ -41,6 +41,11 @@ function extOf(filename: string): string {
  * A mismatched extension never wins over the binary signature.
  */
 export async function detectFormat(buffer: Buffer, filename: string): Promise<DocFormat | null> {
+  // RTF is a text format file-type doesn't recognize; its "{\rtf" signature
+  // is unambiguous, so check it up front — independent of the binary sniffer.
+  const head = buffer.subarray(0, 64).toString("utf-8");
+  if (head.startsWith("{\\rtf")) return "rtf";
+
   const sniffed = await fileTypeFromBuffer(buffer);
 
   if (sniffed) {
@@ -71,9 +76,6 @@ export async function detectFormat(buffer: Buffer, filename: string): Promise<Do
   }
 
   // No magic bytes — text-based formats
-  const head = buffer.subarray(0, 64).toString("utf-8");
-  if (head.startsWith("{\\rtf")) return "rtf";
-
   const byExt = EXT_MAP[extOf(filename)];
   if (byExt === "txt" || byExt === "md" || byExt === "rtf") return byExt;
 

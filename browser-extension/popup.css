@@ -1,0 +1,153 @@
+* { box-sizing: border-box; }
+
+body {
+  width: 360px;
+  margin: 0;
+  padding: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #0a1120;
+  background: #fff;
+}
+
+.hf-x-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.hf-x-logo {
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hf-x-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: #2f6bff;
+  color: #fff;
+  font-size: 13px;
+}
+
+.hf-x-header a {
+  color: #8a94a6;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.hf-x-banner {
+  background: #fff8e6;
+  border: 1px solid #fce4a6;
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 12px;
+  color: #8a6d1a;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.hf-x-banner a { color: #2f6bff; }
+
+.hf-x-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a94a6;
+  margin-bottom: 5px;
+}
+
+.hf-x-textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1c2740;
+  border: 1px solid rgba(12, 20, 37, 0.14);
+  border-radius: 10px;
+  padding: 10px;
+  resize: vertical;
+  outline: none;
+}
+
+.hf-x-textarea:focus { border-color: #2f6bff; }
+
+.hf-x-row {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.hf-x-select, .hf-x-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid rgba(12, 20, 37, 0.14);
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+}
+
+.hf-x-run {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: #2f6bff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  cursor: pointer;
+}
+
+.hf-x-run:disabled { opacity: 0.6; cursor: default; }
+
+.hf-x-error {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: #b3261e;
+  background: #fdf2f2;
+  border: 1px solid #f7d9da;
+  border-radius: 9px;
+  padding: 9px 11px;
+}
+
+.hf-x-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 5px;
+}
+
+.hf-x-copy {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2f6bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hf-x-result {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #1c2740;
+  background: #f6f8fc;
+  border: 1px solid rgba(12, 20, 37, 0.08);
+  border-radius: 10px;
+  padding: 11px;
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow-y: auto;
+}

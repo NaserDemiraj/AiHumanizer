@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="hf-x-header">
+      <div class="hf-x-logo">
+        <span class="hf-x-logo-mark">↑</span> HumanFlow
+      </div>
+      <a id="settings-link" href="#" title="Settings">⚙</a>
+    </header>
+
+    <div id="no-key" class="hf-x-banner" hidden>
+      Add your API key in <a id="open-options" href="#">options</a> to get started.
+      Create one at your dashboard → API keys.
+    </div>
+
+    <label class="hf-x-label" for="text">Text</label>
+    <textarea id="text" class="hf-x-textarea" rows="5" placeholder="Paste text, or select text on the page and reopen."></textarea>
+
+    <div class="hf-x-row">
+      <select id="operation" class="hf-x-select"></select>
+      <input id="option" class="hf-x-input" placeholder="Language" hidden />
+    </div>
+
+    <button id="run" class="hf-x-run">Run</button>
+
+    <div id="error" class="hf-x-error" hidden></div>
+
+    <div id="result-wrap" hidden>
+      <div class="hf-x-result-head">
+        <span class="hf-x-label">Result</span>
+        <button id="copy" class="hf-x-copy">Copy</button>
+      </div>
+      <div id="result" class="hf-x-result"></div>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

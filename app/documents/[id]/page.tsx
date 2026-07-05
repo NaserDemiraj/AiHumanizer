@@ -87,6 +87,14 @@ export default async function DocumentPage({
           <a href={`/api/documents/${doc.id}/export?format=md`} className="hf-doc-export-btn">MD</a>
           <a href={`/api/documents/${doc.id}/export?format=docx`} className="hf-doc-export-btn">DOCX</a>
           <a href={`/api/documents/${doc.id}/export?format=pdf`} className="hf-doc-export-btn">PDF</a>
+          {doc.sourcePath && doc.sourceFormat && (
+            <a
+              href={`/api/documents/${doc.id}/original`}
+              className="hf-doc-export-btn hf-doc-export-original"
+            >
+              ↓ Original ({doc.sourceFormat.toUpperCase()})
+            </a>
+          )}
         </div>
 
         <TagsEditor id={doc.id} tags={doc.tags} />

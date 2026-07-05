@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+    <style>
+      body { width: 440px; }
+      .hf-x-field { margin-bottom: 16px; }
+      .hf-x-help { font-size: 11.5px; color: #8a94a6; margin-top: 5px; line-height: 1.5; }
+      .hf-x-saved { color: #12a150; font-size: 12.5px; font-weight: 700; margin-left: 10px; }
+    </style>
+  </head>
+  <body>
+    <header class="hf-x-header">
+      <div class="hf-x-logo"><span class="hf-x-logo-mark">↑</span> HumanFlow settings</div>
+    </header>
+
+    <div class="hf-x-field">
+      <label class="hf-x-label" for="apiKey">API key</label>
+      <input id="apiKey" class="hf-x-input" style="width:100%" placeholder="hf_live_..." />
+      <div class="hf-x-help">
+        Create a key in your HumanFlow dashboard → API keys. It's stored only in
+        your browser and sent directly to your server.
+      </div>
+    </div>
+
+    <div class="hf-x-field">
+      <label class="hf-x-label" for="baseUrl">Server URL</label>
+      <input id="baseUrl" class="hf-x-input" style="width:100%" placeholder="http://localhost:3000" />
+      <div class="hf-x-help">
+        Where your HumanFlow instance runs. Change this to your deployed URL once
+        the app is live.
+      </div>
+    </div>
+
+    <button id="save" class="hf-x-run">Save</button>
+    <span id="saved" class="hf-x-saved" hidden>Saved ✓</span>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

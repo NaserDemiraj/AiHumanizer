@@ -439,6 +439,11 @@ export default function EditorWorkspace({ docId, initialTitle, initialHtml, sour
                   {f.toUpperCase()}
                 </a>
               ))}
+              {sourceFormat && (
+                <a href={`/api/documents/${docId}/original`}>
+                  Original ({sourceFormat.toUpperCase()})
+                </a>
+              )}
             </div>
           </div>
           <button className="hf-ed-tbtn" onClick={() => setVersionsOpen(!versionsOpen)} type="button">

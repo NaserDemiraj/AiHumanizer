@@ -126,6 +126,13 @@
   color: var(--accent);
 }
 
+.hf-doc-export-original {
+  margin-left: auto;
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, #fff);
+}
+
 .hf-doc-tags {
   display: flex;
   align-items: center;
