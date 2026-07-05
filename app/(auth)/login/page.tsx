@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AuthForm from "../AuthForm";
 
 export const metadata: Metadata = {
-  title: "Sign in — HumanFlow",
+  title: "Sign in",
 };
 
 export default function LoginPage() {

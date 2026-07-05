@@ -10,7 +10,7 @@ import "../dashboard/dashboard.css";
 import "./trash.css";
 
 export const metadata: Metadata = {
-  title: "Trash — HumanFlow",
+  title: "Trash",
 };
 
 export default async function TrashPage() {

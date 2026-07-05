@@ -6,7 +6,7 @@ import NewDocumentLauncher from "./NewDocumentLauncher";
 import "../page.css";
 
 export const metadata: Metadata = {
-  title: "Editor — HumanFlow",
+  title: "Editor",
 };
 
 export default async function EditorLandingPage() {

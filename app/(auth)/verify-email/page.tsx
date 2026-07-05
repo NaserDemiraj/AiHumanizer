@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import VerifyEmailStatus from "../VerifyEmailStatus";
 
 export const metadata: Metadata = {
-  title: "Verify email — HumanFlow",
+  title: "Verify email",
 };
 
 export default function VerifyEmailPage() {

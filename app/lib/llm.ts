@@ -112,6 +112,70 @@ export async function rewriteText(text: string, mode: string): Promise<string> {
   );
 }
 
+export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
+
+/**
+ * Streams a chat completion from a full message list (multi-turn), used by
+ * the help assistant. Yields text deltas via Groq's OpenAI-compatible SSE.
+ * Without an API key, yields a single canned message.
+ */
+export async function* streamChat(
+  messages: ChatMessage[],
+): AsyncGenerator<string, void, unknown> {
+  if (!hasApiKey()) {
+    yield "The assistant is offline right now (no API key configured). Please check the FAQ on the pricing page or contact support.";
+    return;
+  }
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+      temperature: 0.4,
+      max_tokens: 500,
+      stream: true,
+      messages,
+    }),
+  });
+
+  if (!res.ok || !res.body) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Groq API error ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const payload = trimmed.slice(5).trim();
+      if (payload === "[DONE]") return;
+      try {
+        const parsed = JSON.parse(payload) as {
+          choices: { delta?: { content?: string } }[];
+        };
+        const delta = parsed.choices?.[0]?.delta?.content;
+        if (delta) yield delta;
+      } catch {
+        // ignore malformed SSE fragments
+      }
+    }
+  }
+}
+
 /**
  * Streaming variant of rewriteText — yields text deltas as Groq generates
  * them (OpenAI-compatible SSE), instead of waiting for the full completion.

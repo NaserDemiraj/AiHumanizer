@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ResetPasswordForm from "../ResetPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Reset password — HumanFlow",
+  title: "Reset password",
 };
 
 export default function ResetPasswordPage() {

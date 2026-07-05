@@ -6,7 +6,7 @@ import BatchClient from "./BatchClient";
 import "../page.css";
 
 export const metadata: Metadata = {
-  title: "Batch Processing — HumanFlow",
+  title: "Batch Processing",
 };
 
 export default async function BatchPage() {

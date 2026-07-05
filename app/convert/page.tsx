@@ -5,7 +5,7 @@ import ConvertClient from "./ConvertClient";
 import "../page.css";
 
 export const metadata: Metadata = {
-  title: "File Converter — HumanFlow",
+  title: "File Converter",
   description: "Convert PDF, DOCX, DOC, RTF, ODT, TXT, and Markdown files between formats.",
 };
 

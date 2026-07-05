@@ -133,12 +133,20 @@
   background: color-mix(in srgb, var(--accent) 7%, #fff);
 }
 
+.hf-doc-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
 .hf-doc-tags {
   display: flex;
   align-items: center;
   gap: 7px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
 }
 
 .hf-doc-tag {

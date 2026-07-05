@@ -8,6 +8,7 @@ import { Placeholder, CharacterCount } from "@tiptap/extensions";
 import { diffWords, type Change } from "diff";
 import { textStats, fleschReadingEase } from "../../lib/metrics";
 import { TRANSLATE_LANGUAGES, TONE_OPTIONS } from "../../lib/content";
+import ProjectSelector from "../../components/ProjectSelector";
 import "../../components/LiveEditor.css";
 import "../../dashboard/dashboard.css";
 import "../editor.css";
@@ -17,6 +18,8 @@ type Props = {
   initialTitle: string;
   initialHtml: string;
   sourceFormat: string | null;
+  projects: { id: string; name: string }[];
+  currentProjectId: string | null;
 };
 
 type VersionMeta = { id: string; label: string; op: string; createdAt: string };
@@ -39,7 +42,14 @@ const AI_OPS: AiOp[] = [
 
 type ChainStep = { op: string; option?: string; label: string };
 
-export default function EditorWorkspace({ docId, initialTitle, initialHtml, sourceFormat }: Props) {
+export default function EditorWorkspace({
+  docId,
+  initialTitle,
+  initialHtml,
+  sourceFormat,
+  projects,
+  currentProjectId,
+}: Props) {
   const [title, setTitle] = useState(initialTitle);
   const [saveState, setSaveState] = useState<"saved" | "saving" | "dirty">("saved");
   const [stats, setStats] = useState(() => ({ ...textStats(""), readability: 0 }));
@@ -446,6 +456,9 @@ export default function EditorWorkspace({ docId, initialTitle, initialHtml, sour
               )}
             </div>
           </div>
+          {projects.length > 0 && (
+            <ProjectSelector docId={docId} projects={projects} current={currentProjectId} compact />
+          )}
           <button className="hf-ed-tbtn" onClick={() => setVersionsOpen(!versionsOpen)} type="button">
             Versions
           </button>

@@ -578,3 +578,74 @@ div.hf-ed-panel-head {
   padding: 14px 22px;
   border-top: 1px solid rgba(12, 20, 37, 0.07);
 }
+
+/* ---------- mobile / narrow screens ---------- */
+@media (max-width: 720px) {
+  /* Topbar wraps to two rows; title takes the full first row */
+  .hf-ed-topbar {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 8px 14px;
+  }
+  .hf-ed-title {
+    order: -1;
+    flex-basis: 100%;
+    font-size: 15px;
+  }
+  .hf-ed-badge { display: none; } /* least-important chip on tiny screens */
+
+  /* The side panels stop being sticky and just flow under the editor */
+  .hf-ed-side {
+    position: static;
+    top: auto;
+  }
+
+  /* Only the topbar stays pinned; the format toolbar scrolls with content
+     so three stacked sticky bars don't eat the viewport on a phone */
+  .hf-ed-toolbar {
+    position: static;
+    top: auto;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .hf-ed-editor-col {
+    padding: 14px;
+  }
+  .hf-ed-prose {
+    padding: 20px;
+    min-height: 48vh;
+    font-size: 15px;
+  }
+
+  /* Touch devices can't hover — reveal export links inline instead */
+  .hf-ed-export-menu {
+    display: flex;
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .hf-ed-export {
+    border: none;
+    padding: 0;
+    font-size: 0; /* hide the "Export" label, keep the format links */
+  }
+  .hf-ed-export-menu a {
+    font-size: 12px;
+    padding: 6px 9px;
+    border: 1px solid rgba(12, 20, 37, 0.1);
+    border-radius: 8px;
+  }
+
+  /* Keep the diff/compare modal comfortable on small screens */
+  .hf-ed-modal { max-height: 88vh; }
+  .hf-ed-modal-actions { flex-wrap: wrap; }
+}
+
+/* Keep the help chat button from covering the editor's side panel on phones */
+@media (max-width: 720px) {
+  .hf-ed-side { padding-bottom: 84px; }
+}

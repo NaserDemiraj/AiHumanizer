@@ -6,11 +6,12 @@ import { getCurrentUser } from "../../lib/auth";
 import Nav from "../../components/Nav";
 import { FavoriteToggle, DeleteDocInline } from "./DocActions";
 import TagsEditor from "./TagsEditor";
+import ProjectSelector from "../../components/ProjectSelector";
 import "../../page.css";
 import "./document.css";
 
 export const metadata: Metadata = {
-  title: "Document — HumanFlow",
+  title: "Document",
 };
 
 const KIND_LABELS: Record<string, string> = {
@@ -34,10 +35,17 @@ export default async function DocumentPage({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const doc = await prisma.document.findFirst({
-    where: { id, userId: user.id },
-    include: { project: { select: { name: true } } },
-  });
+  const [doc, projects] = await Promise.all([
+    prisma.document.findFirst({
+      where: { id, userId: user.id },
+      include: { project: { select: { name: true } } },
+    }),
+    prisma.project.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true },
+    }),
+  ]);
   if (!doc) notFound();
 
   const metrics = doc.metrics as Record<string, unknown> | null;
@@ -97,7 +105,10 @@ export default async function DocumentPage({
           )}
         </div>
 
-        <TagsEditor id={doc.id} tags={doc.tags} />
+        <div className="hf-doc-meta-row">
+          <TagsEditor id={doc.id} tags={doc.tags} />
+          <ProjectSelector docId={doc.id} projects={projects} current={doc.projectId} />
+        </div>
 
         <div className="hf-doc-panes">
           <div className="hf-doc-pane">

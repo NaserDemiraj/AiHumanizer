@@ -13,7 +13,7 @@ import "../components/Dashboard.css";
 import "./dashboard.css";
 
 export const metadata: Metadata = {
-  title: "Dashboard — HumanFlow",
+  title: "Dashboard",
 };
 
 const ACTIVITY_LABELS: Record<string, string> = {
@@ -127,6 +127,47 @@ export default async function DashboardPage({
           </div>
         </div>
 
+        {documents.length === 0 && (
+          <section className="hf-onboard">
+            <div className="hf-onboard-intro">
+              <h2 className="hf-onboard-title">Welcome to HumanFlow 👋</h2>
+              <p className="hf-onboard-sub">
+                Here&apos;s how to get started — pick whatever fits what you need right now.
+              </p>
+            </div>
+            <div className="hf-onboard-grid">
+              <Link href="/editor" className="hf-onboard-tile">
+                <span className="hf-onboard-num">1</span>
+                <span className="hf-onboard-tile-title">Open the editor</span>
+                <span className="hf-onboard-tile-desc">
+                  Start a blank document, or upload a PDF/Word/Markdown file to edit and humanize.
+                </span>
+              </Link>
+              <Link href="/tools" className="hf-onboard-tile">
+                <span className="hf-onboard-num">2</span>
+                <span className="hf-onboard-tile-title">Try the tools</span>
+                <span className="hf-onboard-tile-desc">
+                  Humanize, detect AI, fix grammar, paraphrase, summarize, translate, and more.
+                </span>
+              </Link>
+              <Link href="/convert" className="hf-onboard-tile">
+                <span className="hf-onboard-num">3</span>
+                <span className="hf-onboard-tile-title">Convert a file</span>
+                <span className="hf-onboard-tile-desc">
+                  Turn a PDF into Word, Word into Markdown, and more — no AI credits used.
+                </span>
+              </Link>
+              <a href="#api-keys" className="hf-onboard-tile">
+                <span className="hf-onboard-num">4</span>
+                <span className="hf-onboard-tile-title">Get an API key</span>
+                <span className="hf-onboard-tile-desc">
+                  Build HumanFlow into your own apps with the developer API.
+                </span>
+              </a>
+            </div>
+          </section>
+        )}
+
         <div className="hf-dash-stats">
           <div className="hf-dashboard-credits-card">
             <div className="hf-dashboard-credits-label">Words used this month</div>
@@ -172,10 +213,16 @@ export default async function DashboardPage({
               </div>
               {documents.length === 0 ? (
                 <div className="hf-dash-empty">
-                  No documents yet.{" "}
-                  <Link href="/#editor" className="hf-dash-empty-link">
-                    Humanize your first text →
-                  </Link>
+                  {q ? (
+                    <>No documents match “{q}”.</>
+                  ) : (
+                    <>
+                      No documents yet.{" "}
+                      <Link href="/editor" className="hf-dash-empty-link">
+                        Create your first document →
+                      </Link>
+                    </>
+                  )}
                 </div>
               ) : (
                 documents.map((doc) => {

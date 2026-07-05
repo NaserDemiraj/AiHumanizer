@@ -5,7 +5,7 @@ import ToolsWorkspace from "./ToolsWorkspace";
 import "../page.css";
 
 export const metadata: Metadata = {
-  title: "Writing Tools — HumanFlow",
+  title: "Writing Tools",
   description:
     "AI detector, grammar checker, paraphraser, summarizer, translator, tone changer, citation generator, plagiarism checker, and text analyzer.",
 };

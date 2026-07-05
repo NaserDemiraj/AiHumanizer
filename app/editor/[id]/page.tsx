@@ -5,7 +5,7 @@ import { getCurrentUser } from "../../lib/auth";
 import EditorWorkspace from "./EditorWorkspace";
 
 export const metadata: Metadata = {
-  title: "Editor — HumanFlow",
+  title: "Editor",
 };
 
 export default async function EditorDocumentPage({
@@ -17,9 +17,16 @@ export default async function EditorDocumentPage({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const doc = await prisma.document.findFirst({
-    where: { id, userId: user.id, deletedAt: null },
-  });
+  const [doc, projects] = await Promise.all([
+    prisma.document.findFirst({
+      where: { id, userId: user.id, deletedAt: null },
+    }),
+    prisma.project.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true },
+    }),
+  ]);
   if (!doc) notFound();
 
   const content = doc.content as { doc: unknown; html: string } | null;
@@ -35,6 +42,8 @@ export default async function EditorDocumentPage({
       initialTitle={doc.title}
       initialHtml={initialHtml}
       sourceFormat={doc.sourceFormat}
+      projects={projects}
+      currentProjectId={doc.projectId}
     />
   );
 }

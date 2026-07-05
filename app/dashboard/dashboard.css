@@ -383,3 +383,73 @@
 .hf-dash-new-doc:hover {
   background: color-mix(in srgb, var(--accent) 86%, #000);
 }
+
+/* ---------- first-run onboarding ---------- */
+.hf-onboard {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, #fff), #fff);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 22px;
+}
+
+.hf-onboard-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: #0a1120;
+}
+
+.hf-onboard-sub {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: #59647a;
+}
+
+.hf-onboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.hf-onboard-tile {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  background: #fff;
+  border: 1px solid rgba(12, 20, 37, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hf-onboard-tile:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -14px rgba(16, 24, 40, 0.25);
+}
+
+.hf-onboard-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.hf-onboard-tile-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0a1120;
+}
+
+.hf-onboard-tile-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #59647a;
+}
