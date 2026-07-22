@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { User } from "@prisma/client";
-import { checkQuota } from "../../app/lib/usage";
+import { checkQuota, chargeWords, type QuotaOk } from "../../app/lib/usage";
 
 function fakeUser(overrides: Partial<User> = {}): User {
   return {
@@ -56,5 +56,44 @@ describe("checkQuota", () => {
     const user = fakeUser({ plan: "PRO", wordsUsed: 99_500 });
     expect(checkQuota(user, 400).ok).toBe(true);
     expect(checkQuota(user, 600).ok).toBe(false);
+  });
+
+  it("flags rolledOver only when the period had expired", () => {
+    const fresh = checkQuota(fakeUser({ periodStart: new Date() }), 100);
+    expect(fresh.ok && fresh.rolledOver).toBe(false);
+
+    const staleStart = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000);
+    const stale = checkQuota(fakeUser({ periodStart: staleStart }), 100);
+    expect(stale.ok && stale.rolledOver).toBe(true);
+  });
+});
+
+describe("chargeWords", () => {
+  const okQuota = (over: Partial<QuotaOk> = {}): QuotaOk => ({
+    ok: true,
+    wordsUsed: 1_000,
+    periodStart: new Date("2026-07-22T00:00:00.000Z"),
+    limit: 2_000,
+    rolledOver: false,
+    ...over,
+  });
+
+  it("charges atomically (increment) in the normal case so concurrent writes can't clobber", () => {
+    expect(chargeWords(okQuota(), 500)).toEqual({ wordsUsed: { increment: 500 } });
+  });
+
+  it("never emits an absolute wordsUsed value outside a rollover", () => {
+    const data = chargeWords(okQuota({ wordsUsed: 1_900 }), 50);
+    // Absolute writes are the race we're fixing — must not appear here.
+    expect(typeof data.wordsUsed).toBe("object");
+    expect(data.periodStart).toBeUndefined();
+  });
+
+  it("resets to an absolute count and re-anchors the period on rollover", () => {
+    const periodStart = new Date("2026-07-22T00:00:00.000Z");
+    expect(chargeWords(okQuota({ rolledOver: true, periodStart }), 500)).toEqual({
+      wordsUsed: 500,
+      periodStart,
+    });
   });
 });

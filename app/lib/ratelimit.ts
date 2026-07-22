@@ -86,9 +86,23 @@ export async function rateLimit(
   return memoryLimit(`${name}:${id}`, limit, windowSeconds * 1000);
 }
 
-/** Best-effort client IP from standard proxy headers (Vercel, most hosts). */
+/**
+ * Best-effort client IP for rate-limit bucketing.
+ *
+ * TRUST BOUNDARY: these headers are only trustworthy when the app sits behind
+ * a proxy that *sets* them and strips any client-supplied copy — which Vercel
+ * and a correctly configured nginx/Cloudflare do. If the app is ever exposed
+ * directly (no such proxy), a client can forge both headers to rotate their
+ * apparent IP and slip past the per-IP caps (signup, v1-auth). Those caps are
+ * defense-in-depth, not the only guard, but keep this in mind before removing
+ * a proxy. We prefer `x-real-ip` (a single platform-set value) over the
+ * left-most `x-forwarded-for` entry, which is the client-controlled end of the
+ * XFF chain.
+ */
 export function clientIp(request: Request): string {
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0].trim();
-  return request.headers.get("x-real-ip") ?? "unknown";
+  return "unknown";
 }

@@ -40,3 +40,19 @@ export async function sendPasswordResetEmail(to: string, name: string, token: st
     link,
   );
 }
+
+export async function sendQuotaNudgeEmail(
+  to: string,
+  name: string,
+  wordsUsed: number,
+  limit: number,
+): Promise<void> {
+  const pct = Math.round((wordsUsed / limit) * 100);
+  const link = `${baseUrl()}/dashboard`;
+  await send(
+    to,
+    `You've used ${pct}% of your monthly words`,
+    `<p>Hi ${name},</p><p>You've used ${wordsUsed.toLocaleString()} of ${limit.toLocaleString()} words this cycle (${pct}%). When you hit the limit, humanizing pauses until your window resets.</p><p>Upgrade to keep going without interruption:</p><p><a href="${link}">View plans</a></p>`,
+    link,
+  );
+}

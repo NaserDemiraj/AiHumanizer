@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Fast gate — runs on every push/PR, needs no database.
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Lint
+        run: npx eslint .
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Unit tests
+        run: npm test
+
+  # Full flow against a real Postgres + a running server, in mock LLM mode
+  # (no GROQ_API_KEY) so it costs nothing and stays deterministic.
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: humanflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/humanflow_test
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/humanflow_test
+      TEST_BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+      - name: Build
+        run: npm run build
+      - name: Start server
+        run: npm start &
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000 >/dev/null; then echo "up"; exit 0; fi
+            sleep 2
+          done
+          echo "server did not start" && exit 1
+      - name: Integration tests
+        run: npm run test:integration

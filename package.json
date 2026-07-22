@@ -20,6 +20,7 @@
     "@tiptap/starter-kit": "^3.27.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
+    "aws4fetch": "^1.0.20",
     "bcryptjs": "^3.0.3",
     "diff": "^9.0.0",
     "docx": "^9.7.1",

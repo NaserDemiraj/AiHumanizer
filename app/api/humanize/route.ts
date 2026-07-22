@@ -3,8 +3,9 @@ import { prisma } from "@/app/lib/db";
 import { getCurrentUser } from "@/app/lib/auth";
 import { rewriteText, estimateMetrics } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { rateLimit } from "@/app/lib/ratelimit";
+import { captureError } from "@/app/lib/observability";
 
 const MAX_INPUT_WORDS = 3_000;
 
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
   try {
     improvedText = await rewriteText(text, mode);
   } catch (err) {
-    console.error("Rewrite failed:", err);
+    captureError("humanize rewrite failed", err, { route: "/api/humanize", userId: user.id, mode });
     return NextResponse.json(
       { error: "The rewrite service is unavailable right now. Try again in a moment." },
       { status: 502 },
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
     }),
     prisma.user.update({
       where: { id: user.id },
-      data: { wordsUsed: quota.wordsUsed + words, periodStart: quota.periodStart },
+      data: chargeWords(quota, words),
     }),
   ]);
   logActivity(user.id, "HUMANIZE", `${mode} · ${words} words`);

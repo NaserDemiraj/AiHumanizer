@@ -4,7 +4,7 @@ import { prisma } from "@/app/lib/db";
 import { getCurrentUser } from "@/app/lib/auth";
 import { runTool, type ToolName } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { textStats, fleschReadingEase, keywordDensity, seoScore } from "@/app/lib/metrics";
 import {
   copyleaksConfigured,
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     if (quota) {
       await prisma.user.update({
         where: { id: user.id },
-        data: { wordsUsed: quota.wordsUsed + words, periodStart: quota.periodStart },
+        data: chargeWords(quota, words),
       });
     }
     logActivity(user.id, "TOOL_RUN", `Plagiarism scan · ${words} words`);
@@ -156,9 +156,7 @@ export async function POST(request: Request) {
     }),
     prisma.user.update({
       where: { id: user.id },
-      data: quota
-        ? { wordsUsed: quota.wordsUsed + words, periodStart: quota.periodStart }
-        : {},
+      data: quota ? chargeWords(quota, words) : {},
     }),
   ]);
 

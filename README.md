@@ -22,8 +22,13 @@ Built with **Next.js 16 (App Router) + TypeScript**, **Prisma 7 + Neon Postgres*
 - **Exports** — TXT, Markdown, DOCX, PDF (single documents and batch ZIP)
 - **Plans & quotas** — words (Free 2k / Pro 100k / Enterprise unlimited), OCR pages, conversions, and storage bytes, all on a 30-day rolling reset
 - **Developer API** — issue `hf_live_…` keys from the dashboard: `POST /api/v1/humanize`, `/api/v1/tools`, `/api/v1/analyze`, `/api/v1/convert`
+- **Browser extension** (`browser-extension/`) — Chrome/Edge MV3 extension: humanize, rewrite, fix grammar, paraphrase, summarize, or translate selected text on any page via the popup or right-click menu, using your HumanFlow account
+- **Word add-in** (`word-addin/`) — Office task-pane add-in that runs the same operations on a selection or the whole document from inside Microsoft Word
+- **Help chatbot** — in-app assistant (streamed) that answers questions about the product, tools, pricing, and API
 - **Copyleaks integration** — real plagiarism scans via signed webhooks once deployed to a public URL (`PUBLIC_BASE_URL`); LLM-based estimate on localhost
 - **Rate limiting** — every expensive route is capped (Upstash Redis when configured, in-memory fallback otherwise)
+- **SEO** — generated `sitemap.xml` and `robots.txt`
+- **Scheduled cleanup** — a daily cron (`/api/cron/cleanup`, guarded by `CRON_SECRET`) purges documents left in the trash past a 30-day retention window (reclaiming their stored files and storage quota) and clears expired/used verification tokens; wired for Vercel Cron via `vercel.json`
 
 ## Setup
 
@@ -61,4 +66,4 @@ Keys are created on the dashboard (`/dashboard` → API keys). Words consumed co
 
 ## Not yet implemented
 
-Payments (Stripe), team collaboration, browser extension / Word add-in, blog & legal pages. Enabling Next.js's `cacheComponents` flag for full static-shell caching of the marketing pages would need a dedicated audit — not done here.
+Payments (Stripe), team collaboration, blog & legal pages. Enabling Next.js's `cacheComponents` flag for full static-shell caching of the marketing pages would need a dedicated audit — not done here.

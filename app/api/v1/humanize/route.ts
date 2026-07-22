@@ -3,8 +3,9 @@ import { prisma } from "@/app/lib/db";
 import { hashApiKey } from "@/app/lib/apikeys";
 import { rewriteText, estimateMetrics } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { rateLimit, clientIp } from "@/app/lib/ratelimit";
+import { captureError } from "@/app/lib/observability";
 
 /**
  * Public programmatic API.
@@ -73,7 +74,12 @@ export async function POST(request: Request) {
   try {
     improvedText = await rewriteText(text, mode);
   } catch (err) {
-    console.error("v1/humanize rewrite failed:", err);
+    captureError("v1/humanize rewrite failed", err, {
+      route: "/api/v1/humanize",
+      userId: apiKey.userId,
+      apiKeyId: apiKey.id,
+      mode,
+    });
     return NextResponse.json({ error: "Rewrite service unavailable" }, { status: 502 });
   }
 
@@ -81,7 +87,7 @@ export async function POST(request: Request) {
   await prisma.$transaction([
     prisma.user.update({
       where: { id: apiKey.userId },
-      data: { wordsUsed: quota.wordsUsed + words, periodStart: quota.periodStart },
+      data: chargeWords(quota, words),
     }),
     prisma.apiKey.update({
       where: { id: apiKey.id },

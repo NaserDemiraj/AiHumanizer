@@ -1,5 +1,7 @@
 import "server-only";
 import { fleschReadingEase, seoScore } from "./metrics";
+import { checkDetectors, type DetectorVerdict } from "./detectors";
+import { captureError } from "./observability";
 
 export type Metrics = {
   humanScore: number;
@@ -8,6 +10,9 @@ export type Metrics = {
   grammar: number;
   readability: number;
   seoScore: number;
+  /** Independent third-party detector verdicts on the humanized text, when a
+   *  detector API is configured. Omitted otherwise. */
+  detectors?: DetectorVerdict[];
 };
 
 export type ToolName =
@@ -492,17 +497,22 @@ export async function estimateMetrics(originalText: string, improvedText: string
   const readability = fleschReadingEase(improvedText);
   const seo = seoScore(improvedText);
 
+  // Independent of Groq — runs whenever a detector API is configured, even in
+  // LLM-mock mode. Never throws (returns null when unconfigured).
+  const detectors = await checkDetectors(improvedText);
+  const withDetectors = (m: Metrics): Metrics => (detectors ? { ...m, detectors } : m);
+
   const heuristicFallback = (): Metrics => {
     const aiProbability = mockAiProbability(improvedText);
     const grammarScore = Math.max(50, 100 - mockGrammarIssues(improvedText) * 8);
-    return {
+    return withDetectors({
       humanScore: 100 - aiProbability,
       aiDetection: aiProbability,
       plagiarism: Math.min(40, Math.round(aiProbability / 3)),
       grammar: grammarScore,
       readability,
       seoScore: seo,
-    };
+    });
   };
 
   if (!hasApiKey()) return heuristicFallback();
@@ -518,16 +528,16 @@ export async function estimateMetrics(originalText: string, improvedText: string
     const fixes = (grammarResult.extra?.fixes as string[] | undefined) ?? [];
     const originality = Number(plagiarismResult.extra?.originalityScore ?? 95);
 
-    return {
+    return withDetectors({
       humanScore: 100 - aiProbability,
       aiDetection: aiProbability,
       plagiarism: Math.max(0, 100 - originality),
       grammar: Math.max(50, 100 - fixes.length * 3),
       readability,
       seoScore: seo,
-    };
+    });
   } catch (err) {
-    console.error("estimateMetrics: detector/grammar/plagiarism calls failed, using heuristic fallback:", err);
+    captureError("estimateMetrics scoring calls failed, using heuristic fallback", err);
     return heuristicFallback();
   }
 }

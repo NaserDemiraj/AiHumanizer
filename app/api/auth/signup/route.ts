@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
-import { hashPassword, createSession } from "@/app/lib/auth";
+import { hashPassword, createSession, passwordProblem } from "@/app/lib/auth";
 import { rateLimit, clientIp } from "@/app/lib/ratelimit";
 import { sendVerificationEmail } from "@/app/lib/email";
 import { issueToken } from "@/app/lib/verification";
+import { isDisposableEmail } from "@/app/lib/emailValidation";
 
 export async function POST(request: Request) {
   let body: { name?: string; email?: string; password?: string };
@@ -23,8 +24,15 @@ export async function POST(request: Request) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
   }
-  if (password.length < 8) {
-    return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+  if (isDisposableEmail(email)) {
+    return NextResponse.json(
+      { error: "Please use a permanent email address — disposable addresses aren't allowed." },
+      { status: 400 },
+    );
+  }
+  const pwProblem = passwordProblem(password);
+  if (pwProblem) {
+    return NextResponse.json({ error: pwProblem }, { status: 400 });
   }
 
   // Caps mass account creation from one IP (each account = free Groq words)

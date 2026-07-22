@@ -3,7 +3,7 @@ import { prisma } from "@/app/lib/db";
 import { authenticateApiKey } from "@/app/lib/apiAuth";
 import { runTool, type ToolName } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { rateLimit, clientIp } from "@/app/lib/ratelimit";
 
 const TOOL_NAMES: ToolName[] = [
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
 
   await prisma.user.update({
     where: { id: auth.user.id },
-    data: { wordsUsed: quota.wordsUsed + words, periodStart: quota.periodStart },
+    data: chargeWords(quota, words),
   });
   logActivity(auth.user.id, "API_CALL", `v1/tools ${tool} · ${words} words`);
 

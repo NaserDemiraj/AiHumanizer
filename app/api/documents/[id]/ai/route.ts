@@ -3,7 +3,7 @@ import { prisma } from "@/app/lib/db";
 import { getCurrentUser } from "@/app/lib/auth";
 import { rewriteText, runTool, estimateMetrics, type ToolName } from "@/app/lib/llm";
 import { countWords } from "@/app/lib/plans";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { rateLimit } from "@/app/lib/ratelimit";
 
 type Step = { op: string; option?: string };
@@ -135,7 +135,7 @@ export async function POST(
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { wordsUsed: quota.wordsUsed + totalWords, periodStart: quota.periodStart },
+    data: chargeWords(quota, totalWords),
   });
   logActivity(
     user.id,

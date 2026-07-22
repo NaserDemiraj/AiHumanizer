@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/app/lib/auth";
 import { getFile } from "@/app/lib/storage";
 import { readDocxParagraphs, patchDocxParagraphs } from "@/app/lib/docxPatch";
 import { rewriteBlocks } from "@/app/lib/llm";
-import { checkQuota, logActivity } from "@/app/lib/usage";
+import { checkQuota, chargeWords, logActivity } from "@/app/lib/usage";
 import { rateLimit } from "@/app/lib/ratelimit";
 
 /**
@@ -93,7 +93,7 @@ export async function POST(
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { wordsUsed: quota.wordsUsed + totalWords, periodStart: quota.periodStart },
+    data: chargeWords(quota, totalWords),
   });
   logActivity(user.id, "PRESERVE_MODE", `${doc.title} · ${mode} · ${totalWords} words`);
 

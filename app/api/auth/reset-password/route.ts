@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
-import { hashPassword, createSession } from "@/app/lib/auth";
+import { hashPassword, createSession, passwordProblem } from "@/app/lib/auth";
 import { consumeToken } from "@/app/lib/verification";
 
 export async function POST(request: Request) {
@@ -16,8 +16,9 @@ export async function POST(request: Request) {
   if (!token || !password) {
     return NextResponse.json({ error: "Missing token or password" }, { status: 400 });
   }
-  if (password.length < 8) {
-    return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+  const pwProblem = passwordProblem(password);
+  if (pwProblem) {
+    return NextResponse.json({ error: pwProblem }, { status: 400 });
   }
 
   const consumed = await consumeToken(token, "PASSWORD_RESET");
