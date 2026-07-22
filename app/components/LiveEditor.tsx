@@ -12,6 +12,8 @@ const colorMap: Record<MetricColorKey, string> = {
   accent: "var(--accent)",
 };
 
+type DetectorVerdict = { provider: string; aiProbability: number; passed: boolean };
+
 type ApiMetrics = {
   humanScore: number;
   aiDetection: number;
@@ -19,9 +21,18 @@ type ApiMetrics = {
   grammar: number;
   readability: number;
   seoScore: number;
+  detectors?: DetectorVerdict[];
 };
 
-const METRIC_KEYS: Record<string, keyof ApiMetrics> = {
+type NumericMetric =
+  | "humanScore"
+  | "aiDetection"
+  | "plagiarism"
+  | "grammar"
+  | "readability"
+  | "seoScore";
+
+const METRIC_KEYS: Record<string, NumericMetric> = {
   "Human Score": "humanScore",
   "AI Detection": "aiDetection",
   Plagiarism: "plagiarism",
@@ -271,6 +282,19 @@ export default function LiveEditor() {
         </div>
 
         <div className="hf-editor-metrics">
+          {complete && metrics?.detectors && metrics.detectors.length > 0 && (
+            <div className="hf-editor-detectors">
+              {metrics.detectors.map((d) => (
+                <span
+                  key={d.provider}
+                  className={`hf-editor-detector ${d.passed ? "hf-editor-detector-pass" : "hf-editor-detector-flag"}`}
+                >
+                  <span className="hf-editor-detector-mark">{d.passed ? "✓" : "✕"}</span>
+                  {d.passed ? `Passed ${d.provider}` : `Flagged by ${d.provider}`}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="hf-editor-metrics-grid">
             {rows.map((m) => (
               <div key={m.label}>

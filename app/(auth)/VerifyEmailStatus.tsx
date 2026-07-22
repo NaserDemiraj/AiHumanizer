@@ -8,15 +8,15 @@ import "./auth.css";
 export default function VerifyEmailStatus() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const [state, setState] = useState<"pending" | "success" | "error">("pending");
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<"pending" | "success" | "error">(
+    token ? "pending" : "error",
+  );
+  const [error, setError] = useState<string | null>(
+    token ? null : "This verification link is missing its token.",
+  );
 
   useEffect(() => {
-    if (!token) {
-      setState("error");
-      setError("This verification link is missing its token.");
-      return;
-    }
+    if (!token) return;
     fetch("/api/auth/verify-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

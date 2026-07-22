@@ -13,6 +13,30 @@ import "../../components/LiveEditor.css";
 import "../../dashboard/dashboard.css";
 import "../editor.css";
 
+function ToolBtn({
+  active,
+  onClick,
+  children,
+  label,
+}: {
+  active?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      className={`hf-ed-tbtn${active ? " hf-ed-tbtn-on" : ""}`}
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
 type Props = {
   docId: string;
   initialTitle: string;
@@ -75,6 +99,7 @@ export default function EditorWorkspace({
     selFrom: number;
     selTo: number;
     opLabel: string;
+    detectors: { provider: string; aiProbability: number; passed: boolean }[];
   } | null>(null);
   const [compare, setCompare] = useState<{ label: string; changes: Change[] } | null>(null);
 
@@ -130,13 +155,11 @@ export default function EditorWorkspace({
     saveTimer.current = setTimeout(() => void persist(), 1500);
   }, [persist]);
 
-  useEffect(() => {
-    if (title !== initialTitle) {
-      setSaveState("dirty");
-      scheduleSave();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title]);
+  function handleTitleChange(value: string) {
+    setTitle(value);
+    setSaveState("dirty");
+    scheduleSave();
+  }
 
   // Ctrl+F opens find, Ctrl+S forces save
   useEffect(() => {
@@ -158,10 +181,11 @@ export default function EditorWorkspace({
     const res = await fetch(`/api/documents/${docId}/versions`);
     if (res.ok) setVersions(await res.json());
   }
-  useEffect(() => {
-    if (versionsOpen) void loadVersions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [versionsOpen]);
+  function toggleVersions() {
+    const next = !versionsOpen;
+    setVersionsOpen(next);
+    if (next) void loadVersions();
+  }
 
   // ---- find & replace (plain-text based) ----
   function runFind() {
@@ -269,6 +293,7 @@ export default function EditorWorkspace({
         selFrom: from,
         selTo: to,
         opLabel: steps.map((s) => s.label).join(" → "),
+        detectors: Array.isArray(data.metrics?.detectors) ? data.metrics.detectors : [],
       });
     } catch {
       setAiError("Network error. Try again.");
@@ -411,18 +436,6 @@ export default function EditorWorkspace({
 
   if (!editor) return null;
 
-  const B = ({ active, onClick, children, label }: { active?: boolean; onClick: () => void; children: React.ReactNode; label: string }) => (
-    <button
-      className={`hf-ed-tbtn${active ? " hf-ed-tbtn-on" : ""}`}
-      onClick={onClick}
-      title={label}
-      aria-label={label}
-      type="button"
-    >
-      {children}
-    </button>
-  );
-
   return (
     <div className="hf-ed-page">
       <header className="hf-ed-topbar">
@@ -432,7 +445,7 @@ export default function EditorWorkspace({
         <input
           className="hf-ed-title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => handleTitleChange(e.target.value)}
           maxLength={120}
           aria-label="Document title"
         />
@@ -459,36 +472,36 @@ export default function EditorWorkspace({
           {projects.length > 0 && (
             <ProjectSelector docId={docId} projects={projects} current={currentProjectId} compact />
           )}
-          <button className="hf-ed-tbtn" onClick={() => setVersionsOpen(!versionsOpen)} type="button">
+          <button className="hf-ed-tbtn" onClick={toggleVersions} type="button">
             Versions
           </button>
         </div>
       </header>
 
       <div className="hf-ed-toolbar">
-        <B label="Undo (Ctrl+Z)" onClick={() => editor.chain().focus().undo().run()}>↩</B>
-        <B label="Redo (Ctrl+Y)" onClick={() => editor.chain().focus().redo().run()}>↪</B>
+        <ToolBtn label="Undo (Ctrl+Z)" onClick={() => editor.chain().focus().undo().run()}>↩</ToolBtn>
+        <ToolBtn label="Redo (Ctrl+Y)" onClick={() => editor.chain().focus().redo().run()}>↪</ToolBtn>
         <span className="hf-ed-tsep" />
         {[1, 2, 3].map((level) => (
-          <B
+          <ToolBtn
             key={level}
             label={`Heading ${level}`}
             active={editor.isActive("heading", { level })}
             onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 }).run()}
           >
             H{level}
-          </B>
+          </ToolBtn>
         ))}
         <span className="hf-ed-tsep" />
-        <B label="Bold (Ctrl+B)" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}><b>B</b></B>
-        <B label="Italic (Ctrl+I)" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}><i>I</i></B>
-        <B label="Underline (Ctrl+U)" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}><u>U</u></B>
-        <B label="Strikethrough" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}><s>S</s></B>
+        <ToolBtn label="Bold (Ctrl+B)" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}><b>B</b></ToolBtn>
+        <ToolBtn label="Italic (Ctrl+I)" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}><i>I</i></ToolBtn>
+        <ToolBtn label="Underline (Ctrl+U)" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}><u>U</u></ToolBtn>
+        <ToolBtn label="Strikethrough" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}><s>S</s></ToolBtn>
         <span className="hf-ed-tsep" />
-        <B label="Bullet list" active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()}>•≡</B>
-        <B label="Numbered list" active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()}>1≡</B>
-        <B label="Quote" active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()}>❝</B>
-        <B
+        <ToolBtn label="Bullet list" active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()}>•≡</ToolBtn>
+        <ToolBtn label="Numbered list" active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()}>1≡</ToolBtn>
+        <ToolBtn label="Quote" active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()}>❝</ToolBtn>
+        <ToolBtn
           label="Link"
           active={editor.isActive("link")}
           onClick={() => {
@@ -498,10 +511,10 @@ export default function EditorWorkspace({
           }}
         >
           🔗
-        </B>
+        </ToolBtn>
         <span className="hf-ed-tsep" />
-        <B label="Find & replace (Ctrl+F)" active={findOpen} onClick={() => setFindOpen(!findOpen)}>🔍</B>
-        <B label="Save version snapshot" onClick={() => void saveVersionNow()}>📌</B>
+        <ToolBtn label="Find & replace (Ctrl+F)" active={findOpen} onClick={() => setFindOpen(!findOpen)}>🔍</ToolBtn>
+        <ToolBtn label="Save version snapshot" onClick={() => void saveVersionNow()}>📌</ToolBtn>
       </div>
 
       {findOpen && (
@@ -692,6 +705,19 @@ export default function EditorWorkspace({
             <div className="hf-ed-modal-head">
               <strong>{preview.opLabel}</strong> — review changes (click a change to toggle it)
             </div>
+            {preview.detectors.length > 0 && (
+              <div className="hf-ed-detectors">
+                {preview.detectors.map((d) => (
+                  <span
+                    key={d.provider}
+                    className={`hf-ed-detector ${d.passed ? "hf-ed-detector-pass" : "hf-ed-detector-flag"}`}
+                  >
+                    <span className="hf-ed-detector-mark">{d.passed ? "✓" : "✕"}</span>
+                    {d.passed ? `Passed ${d.provider}` : `Flagged by ${d.provider}`}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="hf-ed-diff">
               {preview.changes.map((c, i) => {
                 if (!c.added && !c.removed) return <span key={i}>{c.value}</span>;

@@ -66,7 +66,22 @@ export default function ChatWidget() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let acc = "";
+
+      // Append each streamed delta to the last (assistant) message. We derive
+      // the new content from previous state rather than a mutable accumulator.
+      const appendToLast = (text: string) =>
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          next[next.length - 1] = { role: "assistant", content: last.content + text };
+          return next;
+        });
+      const replaceLast = (text: string) =>
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = { role: "assistant", content: text };
+          return next;
+        });
 
       while (true) {
         const { done, value } = await reader.read();
@@ -81,19 +96,9 @@ export default function ChatWidget() {
             | { type: "done" }
             | { type: "error"; error: string };
           if (event.type === "delta") {
-            acc += event.text;
-            setMessages((prev) => {
-              const next = [...prev];
-              next[next.length - 1] = { role: "assistant", content: acc };
-              return next;
-            });
+            appendToLast(event.text);
           } else if (event.type === "error") {
-            acc = event.error;
-            setMessages((prev) => {
-              const next = [...prev];
-              next[next.length - 1] = { role: "assistant", content: acc };
-              return next;
-            });
+            replaceLast(event.error);
           }
         }
       }

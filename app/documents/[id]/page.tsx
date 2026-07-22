@@ -54,6 +54,9 @@ export default async function DocumentPage({
         (entry): entry is [string, number] => typeof entry[1] === "number",
       )
     : [];
+  const detectors = Array.isArray(metrics?.detectors)
+    ? (metrics.detectors as { provider: string; aiProbability: number; passed: boolean }[])
+    : [];
 
   const METRIC_LABELS: Record<string, string> = {
     humanScore: "Human Score",
@@ -122,6 +125,20 @@ export default async function DocumentPage({
             </div>
           )}
         </div>
+
+        {detectors.length > 0 && (
+          <div className="hf-doc-detectors">
+            {detectors.map((d) => (
+              <span
+                key={d.provider}
+                className={`hf-doc-detector ${d.passed ? "hf-doc-detector-pass" : "hf-doc-detector-flag"}`}
+              >
+                <span className="hf-doc-detector-mark">{d.passed ? "✓" : "✕"}</span>
+                {d.passed ? `Passed ${d.provider}` : `Flagged by ${d.provider}`}
+              </span>
+            ))}
+          </div>
+        )}
 
         {metricEntries.length > 0 && (
           <div className="hf-doc-metrics">

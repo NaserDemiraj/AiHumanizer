@@ -538,6 +538,55 @@ div.hf-ed-panel-head {
   border-bottom: 1px solid rgba(12, 20, 37, 0.07);
 }
 
+.hf-ed-detectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 22px 0;
+}
+
+.hf-ed-detector {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 650;
+  border: 1px solid transparent;
+}
+
+.hf-ed-detector-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10.5px;
+  color: #fff;
+}
+
+.hf-ed-detector-pass {
+  color: #067647;
+  background: #e6f7ef;
+  border-color: rgba(6, 118, 71, 0.18);
+}
+
+.hf-ed-detector-pass .hf-ed-detector-mark {
+  background: #12b76a;
+}
+
+.hf-ed-detector-flag {
+  color: #b42318;
+  background: #fdf2f2;
+  border-color: rgba(180, 35, 24, 0.18);
+}
+
+.hf-ed-detector-flag .hf-ed-detector-mark {
+  background: #e5484d;
+}
+
 .hf-ed-diff {
   padding: 20px 22px;
   overflow-y: auto;
